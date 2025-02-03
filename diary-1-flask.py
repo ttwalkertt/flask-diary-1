@@ -1,5 +1,3 @@
-# from chatGPT
-
 import os
 import logging
 import gridfs
@@ -32,6 +30,7 @@ fs = gridfs.GridFS(db)
 
 logging.info("Flask API started. Connected to MongoDB.")
 
+# Route to create a new event
 @app.route("/events", methods=["POST"])
 def create_event():
     data = request.json
@@ -39,6 +38,7 @@ def create_event():
     logging.info(f"Event created: {event_id} - {data['title']}")
     return jsonify({"message": "Event stored", "event_id": str(event_id)}), 201
 
+# Route to retrieve an event by ID
 @app.route("/events/<event_id>", methods=["GET"])
 def get_event(event_id):
     logging.info(f"Retrieving event ID: {event_id}")
@@ -50,6 +50,7 @@ def get_event(event_id):
     logging.warning(f"Event not found: {event_id}")
     return jsonify({"error": "Event not found"}), 404
 
+# Route to add a conversation turn to an event
 @app.route("/events/<event_id>/conversation", methods=["POST"])
 def add_conversation_turn(event_id):
     data = request.json
@@ -69,6 +70,7 @@ def add_conversation_turn(event_id):
     logging.info(f"Conversation turn added to event {event_id} - Turn {next_turn}")
     return jsonify({"message": "Turn added", "turn": next_turn}), 200
 
+# Route to upload an image
 @app.route("/upload", methods=["POST"])
 def upload_image():
     if "file" not in request.files:
@@ -80,6 +82,7 @@ def upload_image():
     logging.info(f"Image uploaded: {file.filename} (ID: {file_id})")
     return jsonify({"message": "Image stored", "file_id": str(file_id)}), 201
 
+# Route to retrieve an image by ID
 @app.route("/image/<file_id>", methods=["GET"])
 def get_image(file_id):
     try:
@@ -93,6 +96,7 @@ def get_image(file_id):
         logging.error(f"Image not found: {file_id}")
         return jsonify({"error": "File not found"}), 404
 
+# Route to search events by keyword
 @app.route("/events/search", methods=["GET"])
 def search_events():
     keyword = request.args.get("q", "").strip()
@@ -113,6 +117,7 @@ def search_events():
 
     return jsonify(results), 200
 
+# Route to retrieve API logs
 @app.route("/logs", methods=["GET"])
 def get_logs():
     level_filter = request.args.get("level", "").upper()
@@ -135,14 +140,17 @@ def get_logs():
         logging.error(f"Error reading logs: {str(e)}", exc_info=True)
         return jsonify({"error": "Failed to retrieve logs"}), 500
 
+# Error handler for unhandled exceptions
 @app.errorhandler(Exception)
 def handle_exception(e):
     logging.error(f"Unhandled exception: {str(e)}", exc_info=True)
     return jsonify({"error": "An unexpected error occurred"}), 500
 
+# Run the Flask app
 if __name__ == "__main__":
     app.run(debug=True)
 
+# Instructions for running the API
 # Run the API with:
 # $ python api.py
 # The API will be available at http://localhost:5000.
